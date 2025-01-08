@@ -1,0 +1,7 @@
+:80 {
+    reverse_proxy server:80
+}
+
+:90 {
+    reverse_proxy client:80
+}

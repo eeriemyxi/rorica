@@ -1,0 +1,42 @@
+name: rorica
+
+services:
+  server:
+    build:
+      context: ./server
+      target: ${RORICA_TARGET}
+    develop:
+      watch:
+        - action: sync
+          path: ./server
+          target: /server
+
+  client:
+    build:
+      context: ./client
+      target: ${RORICA_TARGET}
+    develop:
+      watch:
+        - action: sync
+          path: ./client
+          target: /client
+    depends_on:
+        - server
+
+  caddy:
+    build:
+      context: ./caddy
+      target: ${RORICA_TARGET}
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "8080:80"
+      - "8090:90"
+    develop:
+      watch:
+        - action: sync
+          path: ./caddy
+          target: /caddy
+    depends_on:
+      - server
+      - client
