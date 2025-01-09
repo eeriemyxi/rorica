@@ -2,17 +2,49 @@ name: rorica
 
 volumes:
   client_dist: {}
-    
+
 services:
+  postgres:
+    image: postgres:17.2-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: "pg_isready -U ${POSTGRES_USER}"
+      interval: 2s
+      start_period: 3s
+      timeout: 5s
+      retries: 8
+
   server:
     build:
       context: ./server
       target: ${RORICA_TARGET}
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     develop:
       watch:
+        - action: rebuild
+          path: ./server/Dockerfile
+        - action: rebuild
+          path: ./server/pyproject.toml
+          target: /server/pyproject.toml
         - action: sync
           path: ./server
           target: /server
+    healthcheck:
+      test: "wget --spider -q http://server:80/health || exit 1"
+      interval: 5s
+      start_period: 2s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   client:
     build:
@@ -20,29 +52,47 @@ services:
       target: ${RORICA_TARGET}
     volumes:
       - client_dist:/client/dist
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL}
     develop:
       watch:
+        - action: rebuild
+          path: ./client/Dockerfile
+        - action: rebuild
+          path: ./client/package.json
+          target: /client/package.json
         - action: sync
           path: ./client
           target: /client
+    healthcheck:
+      test: "[ -e /client/ready ] || wget --spider -q http://client:80 || exit 1"
+      interval: 5s
+      timeout: 5s
+      start_period: 2s
+      retries: 5
     depends_on:
-      - server
+      server:
+        condition: service_healthy
 
   caddy:
     build:
       context: ./caddy
       target: ${RORICA_TARGET}
-    cap_add:
-      - NET_ADMIN
+    # cap_add:
+    #   - NET_ADMIN
     ports:
       - "8080:80"
     volumes:
       - client_dist:/client/dist
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL}
     develop:
       watch:
-        - action: sync
+        - action: rebuild
           path: ./caddy
           target: /caddy
     depends_on:
-      - server
-      - client
+      server:
+        condition: service_healthy
+      client:
+        condition: service_healthy

@@ -1,21 +1,22 @@
 FROM python:3.12-alpine AS base
-RUN apk add uv
 
+ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
+
+RUN apk add uv
 RUN adduser -Ds /bin/sh rorica rorica
 
-USER rorica
+COPY --chown=rorica:rorica . /server
+COPY . /server
+
 WORKDIR /server
 
-COPY --chown=rorica:rorica . /server
 RUN uv sync
 
 FROM base AS production
-CMD uv run rorica-server
+USER rorica
+CMD uv run rorica-server --host 0.0.0.0 --port 80
 
 FROM base AS development
-
-USER root
 RUN apk add entr findutils
-
 USER rorica
-CMD find src pyproject.toml | entr -nr uv run rorica-server
+CMD find src pyproject.toml | entr -rn uv run rorica-server --host 0.0.0.0 --port 80
