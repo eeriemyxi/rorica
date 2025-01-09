@@ -1,7 +1,7 @@
 # Rorica
 
 > [!IMPORTANT]
-> Rorica is still in development and currently is **unusable**.
+> Rorica is still in development and currently **is unusable**.
 
 Rorica is WebSocket-based chat server, also featuring a React-based official
 static web client.
