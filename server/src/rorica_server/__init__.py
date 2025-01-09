@@ -22,7 +22,7 @@ def handle_request(connection, request):
         return connection.respond(HTTPStatus.OK, "OK\n")
 
 
-async def base(websocket, con):
+async def base(websocket, *, con):
     async for message in websocket:
         await websocket.send(message)
 
@@ -37,7 +37,7 @@ async def start(host: str, port: int):
     log.info(f"Server is starting on {host}:{port}")
 
     async with serve(
-        partial(base, con), host, port, process_request=handle_request
+        partial(base, con=con), host, port, process_request=handle_request
     ) as server:
         await server.serve_forever()
 
