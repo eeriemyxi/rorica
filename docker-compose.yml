@@ -78,8 +78,6 @@ services:
     build:
       context: ./caddy
       target: ${RORICA_TARGET}
-    # cap_add:
-    #   - NET_ADMIN
     ports:
       - "8080:80"
     volumes:
