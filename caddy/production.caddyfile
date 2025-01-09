@@ -1,0 +1,6 @@
+import common.caddy
+
+:80 {
+    root * /client/dist
+    file_server
+}

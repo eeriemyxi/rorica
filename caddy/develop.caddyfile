@@ -1,7 +1,5 @@
-:80 {
-    reverse_proxy server:80
-}
+import common.caddy
 
-:90 {
+:80/api {
     reverse_proxy client:80
 }

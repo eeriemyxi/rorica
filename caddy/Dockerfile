@@ -6,5 +6,4 @@ FROM base AS develop
 CMD caddy run -c develop.caddyfile
 
 FROM base AS production
-# [TODO] Find a way to get dist/ files from `client` container.
-CMD ls
+CMD caddy run -c production.caddyfile

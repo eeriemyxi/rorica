@@ -1,5 +1,8 @@
 name: rorica
 
+volumes:
+  client_dist: {}
+    
 services:
   server:
     build:
@@ -15,13 +18,15 @@ services:
     build:
       context: ./client
       target: ${RORICA_TARGET}
+    volumes:
+      - client_dist:/client/dist
     develop:
       watch:
         - action: sync
           path: ./client
           target: /client
     depends_on:
-        - server
+      - server
 
   caddy:
     build:
@@ -31,7 +36,8 @@ services:
       - NET_ADMIN
     ports:
       - "8080:80"
-      - "8090:90"
+    volumes:
+      - client_dist:/client/dist
     develop:
       watch:
         - action: sync
