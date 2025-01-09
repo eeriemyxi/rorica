@@ -17,5 +17,5 @@ docker compose up
 To run the development version:
 ```shell
 export RORICA_TARGET=develop
-docker compose up
+docker compose up --watch
 ```
