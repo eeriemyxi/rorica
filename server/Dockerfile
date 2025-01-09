@@ -12,7 +12,7 @@ RUN uv sync
 FROM base AS production
 CMD uv run rorica-server
 
-FROM base AS develop
+FROM base AS development
 
 USER root
 RUN apk add entr findutils

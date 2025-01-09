@@ -11,5 +11,5 @@ RUN bun install
 FROM base AS production
 CMD bun run build
 
-FROM base AS develop
+FROM base AS development
 CMD bun run dev --port 80 --host 0.0.0.0
